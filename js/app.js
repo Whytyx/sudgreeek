@@ -40,11 +40,12 @@
     doneText: $("#done-text"),
     doneHome: $("#done-home"),
     addCustom: $("#add-custom"),
-    buildSummary: $("#build-summary"),
+    buildEmpty: $("#build-empty"),
+    buildLines: $("#build-lines"),
+    buildTotalRow: $("#build-total-row"),
     buildTotal: $("#build-total"),
     toast: $("#toast"),
-    builder: $("#builder"),
-    buildBar: $("#build-bar")
+    builder: $("#builder")
   };
 
   var cart = [];
@@ -353,30 +354,37 @@
   function readBuilder() {
     var size = $('input[name="size"]:checked');
     var toppings = checked("topping");
-    var parts = [];
+    var lines = [];
     var price = 0;
     if (size) {
-      price += Number(size.dataset.price);
-      parts.push(size.dataset.label);
+      var basePrice = Number(size.dataset.price);
+      price += basePrice;
+      lines.push({ label: size.dataset.label, price: basePrice, extra: false });
     }
     toppings.forEach(function (f) {
-      price += Number(f.dataset.price);
-      parts.push(f.dataset.label);
+      var extra = Number(f.dataset.price);
+      price += extra;
+      lines.push({ label: f.dataset.label, price: extra, extra: true });
     });
     var id = [
       "custom",
       size ? size.value : "-",
       toppings.map(function (f) { return f.value; }).sort().join("+")
     ].join("|");
-    return { size: size, parts: parts, price: price, ready: !!size, id: id };
+    return { size: size, lines: lines, price: price, ready: !!size, id: id };
   }
 
   function renderBuilder() {
     var b = readBuilder();
-    els.buildTotal.textContent = money(b.price);
     els.addCustom.disabled = !b.ready;
-    if (!b.size) els.buildSummary.textContent = "เลือกขนาดก่อนนะ";
-    else els.buildSummary.textContent = b.parts.join(" · ");
+    els.buildEmpty.hidden = b.lines.length > 0 && !!b.size;
+    if (!b.size) els.buildEmpty.textContent = "เลือกขนาดกะปุกก่อน";
+    els.buildLines.innerHTML = b.lines.map(function (line) {
+      var shown = (line.extra ? "+" : "") + money(line.price);
+      return "<li><span>" + esc(line.label) + "</span><span>" + shown + "</span></li>";
+    }).join("");
+    els.buildTotalRow.hidden = !b.size;
+    if (b.size) els.buildTotal.textContent = money(b.price);
   }
 
   els.builder.addEventListener("change", renderBuilder);
@@ -384,7 +392,7 @@
   els.addCustom.addEventListener("click", function () {
     var b = readBuilder();
     if (!b.ready) return;
-    var detailParts = b.parts.filter(function (p) { return p !== b.size.dataset.label; });
+    var detailParts = b.lines.filter(function (line) { return line.extra; }).map(function (line) { return line.label; });
     addItem({
       id: b.id,
       name: "จัดเซ็ตเอง · " + b.size.dataset.label,
@@ -393,16 +401,6 @@
       img: ""
     });
   });
-
-  function placeBuildBar() {
-    var rect = els.builder.getBoundingClientRect();
-    var vh = window.innerHeight || 800;
-    var visible = rect.top < vh * 0.78 && rect.bottom > vh * 0.72;
-    els.buildBar.classList.toggle("on", visible);
-    if ("inert" in els.buildBar) els.buildBar.inert = !visible;
-  }
-  window.addEventListener("scroll", placeBuildBar, { passive: true });
-  window.addEventListener("resize", placeBuildBar);
 
   var sections = ["top", "signature", "builder", "about"];
   var navLinks = $all(".nav a");
@@ -443,5 +441,4 @@
   if (promo) els.promoInput.value = promo;
   renderCart();
   renderBuilder();
-  placeBuildBar();
 })();

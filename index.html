@@ -213,6 +213,17 @@
           <label class="pick"><input type="checkbox" name="topping" value="biscoff" data-price="15" data-label="Biscoff"><span class="pick-body"><span class="fruit-ico" aria-hidden="true">🍪</span><span class="pick-name">Biscoff</span><span class="pick-meta">บิสกิต</span><span class="pick-price">+฿15</span></span></label>
         </div>
         <p class="subnote">เลือกได้หลายอย่าง หรือไม่เลือกก็ได้</p>
+
+        <div class="build-receipt" id="build-receipt">
+          <h3>ชุดที่กำลังจัด</h3>
+          <p class="build-empty" id="build-empty">เลือกขนาดกะปุกก่อน</p>
+          <ul class="build-lines" id="build-lines"></ul>
+          <div class="build-total-row" id="build-total-row" hidden>
+            <span>รวม</span>
+            <strong id="build-total">฿0</strong>
+          </div>
+          <button type="button" class="btn" id="add-custom" disabled>ใส่ตะกร้า</button>
+        </div>
       </div>
     </section>
 
@@ -261,16 +272,6 @@
       </div>
     </div>
   </footer>
-
-  <div class="build-bar" id="build-bar" inert>
-    <div class="build-bar-inner">
-      <div class="build-copy">
-        <p class="build-summary" id="build-summary">เลือกขนาดก่อนนะ</p>
-        <p class="build-total" id="build-total" aria-live="polite">฿0</p>
-      </div>
-      <button type="button" class="btn" id="add-custom" disabled>ใส่ตะกร้า</button>
-    </div>
-  </div>
 
   <div class="overlay" id="overlay" hidden></div>
   <aside class="drawer" id="drawer" aria-hidden="true" aria-labelledby="drawer-title" role="dialog" aria-modal="true">
