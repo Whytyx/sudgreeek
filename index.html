@@ -251,7 +251,7 @@
       <div>
         <p class="foot-brand">SUDGREEEK</p>
         <p class="slogan-inline" style="margin-top:0">So Greek So Good</p>
-        <p>การสั่งบนหน้านี้ยังเป็นตัวอย่าง ยังไม่เรียกเก็บเงิน และยังไม่ส่งออเดอร์เข้าร้าน</p>
+        <p>ยังไม่มีการเรียกเก็บเงิน ออเดอร์ส่งถึงร้านทางอีเมล</p>
         <ul class="handles">
           <li><a href="https://www.instagram.com/sudgreek_/" rel="noopener noreferrer">Instagram sudgreek_</a></li>
           <li><a href="https://www.tiktok.com/@sudgreeeek" rel="noopener noreferrer">TikTok sudgreeeek</a></li>
@@ -297,8 +297,8 @@
           <div class="grand"><span>ยอดสุทธิ</span><strong id="grand">฿0</strong></div>
         </div>
         <p class="fine">โค้ด GREEK10 ลด 10% จากค่าอาหาร ไม่รวมค่าจัดส่ง ค่าจัดส่งตัวอย่าง ฿40 เมื่อมีสินค้า</p>
-        <button type="button" class="btn btn-ink btn-block" id="go-checkout" disabled>เช็กเอาต์ตัวอย่าง</button>
-        <p class="fine">ยังไม่มีการเรียกเก็บเงิน เป็นตัวอย่างการสั่งเท่านั้น</p>
+        <button type="button" class="btn btn-ink btn-block" id="go-checkout" disabled>ไปเช็กเอาต์</button>
+        <p class="fine">ยังไม่มีการเรียกเก็บเงิน</p>
       </div>
     </div>
 
@@ -317,14 +317,15 @@
           <textarea name="note" maxlength="300" placeholder="เช่น ขอช้อนเพิ่ม"></textarea>
         </label>
         <div id="checkout-summary"></div>
-        <p class="fine">ยังไม่มีการเรียกเก็บเงิน และไม่ได้ส่งออเดอร์ไปที่ร้าน เป็นตัวอย่างเท่านั้น</p>
-        <button type="submit" class="btn btn-ink btn-block">ส่งออเดอร์ตัวอย่าง</button>
+        <p class="err" id="err-send"></p>
+        <p class="fine">ยังไม่มีการเรียกเก็บเงิน ส่งรายการให้ร้านทางอีเมล</p>
+        <button type="submit" class="btn btn-ink btn-block" id="checkout-submit">ส่งออเดอร์</button>
       </form>
     </div>
 
     <div class="drawer-view done" id="view-done" hidden>
       <img src="img/logo.png" width="512" height="512" alt="">
-      <h2>รับออเดอร์ตัวอย่างแล้ว</h2>
+      <h2>รับออเดอร์แล้ว</h2>
       <p id="done-text"></p>
       <button type="button" class="btn" id="done-home">กลับไปเลือกเมนู</button>
     </div>

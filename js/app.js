@@ -199,7 +199,7 @@
     els.viewCart.hidden = name !== "cart";
     els.viewCheckout.hidden = name !== "checkout";
     els.viewDone.hidden = name !== "done";
-    els.title.textContent = name === "checkout" ? "เช็กเอาต์ตัวอย่าง" : name === "done" ? "เรียบร้อย" : "ตะกร้า";
+    els.title.textContent = name === "checkout" ? "เช็กเอาต์" : name === "done" ? "รับออเดอร์แล้ว" : "ตะกร้า";
     if (name === "checkout") renderCheckoutSummary();
   }
 
@@ -300,9 +300,28 @@
   });
   els.backCart.addEventListener("click", function () { showView("cart"); });
 
+  var sending = false;
+
+  function orderLines() {
+    return cart.map(function (i) {
+      var bit = i.name + " × " + i.qty + " " + money(i.price * i.qty);
+      return i.detail ? bit + " (" + i.detail + ")" : bit;
+    }).join("\n");
+  }
+
+  function clearCartAfterSend() {
+    cart = [];
+    promo = null;
+    els.promoInput.value = "";
+    els.promoMsg.textContent = "";
+    els.form.reset();
+    save();
+    renderCart();
+  }
+
   els.form.addEventListener("submit", function (e) {
     e.preventDefault();
-    if (!cart.length) return;
+    if (!cart.length || sending) return;
     var data = new FormData(els.form);
     var name = String(data.get("name") || "").trim();
     var phone = String(data.get("phone") || "").trim();
@@ -311,6 +330,8 @@
     var ok = true;
     var nameErr = $("#err-name");
     var phoneErr = $("#err-phone");
+    var sendErr = $("#err-send");
+    sendErr.textContent = "";
     if (name.length < 2) {
       nameErr.textContent = "กรอกชื่อด้วยนะ";
       ok = false;
@@ -325,21 +346,52 @@
     }
     var t = totals();
     var ref = "SG-" + String(Date.now()).slice(-4);
-    els.doneText.innerHTML =
-      "เลขที่ตัวอย่าง <strong>" + esc(ref) + "</strong> ของคุณ " + esc(name) +
-      "<br>ยอดตัวอย่าง " + money(t.total) +
-      (note ? "<br>โน้ต: " + esc(note) : "") +
-      "<br><br>นี่เป็นตัวอย่างการสั่งเท่านั้น ยังไม่ได้เชื่อมกับร้านจริง ไม่มีการเรียกเก็บเงิน และไม่ได้ส่งออเดอร์ไปที่ใด";
-    cart = [];
-    promo = null;
-    els.promoInput.value = "";
-    els.promoMsg.textContent = "";
-    nameErr.textContent = "";
-    phoneErr.textContent = "";
-    els.form.reset();
-    save();
-    renderCart();
-    showView("done");
+    var submitBtn = $("#checkout-submit");
+    sending = true;
+    submitBtn.disabled = true;
+    submitBtn.textContent = "กำลังส่ง...";
+    fetch("https://formsubmit.co/ajax/sudgreek@gmail.com", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json"
+      },
+      body: JSON.stringify({
+        _subject: "SUDGREEEK order " + ref,
+        _template: "table",
+        _captcha: "false",
+        name: name,
+        phone: phone,
+        note: note,
+        items: orderLines(),
+        subtotal: money(t.subtotal),
+        discount: money(t.discount),
+        delivery: money(40),
+        total: money(t.total)
+      })
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (body) {
+        if (!res.ok || body.success === false || body.success === "false") {
+          throw new Error("send failed");
+        }
+        return body;
+      });
+    }).then(function () {
+      els.doneText.innerHTML =
+        "เลขที่ <strong>" + esc(ref) + "</strong><br>ชื่อ " + esc(name) +
+        "<br>ยอดรวม <span class=\"money\">" + money(t.total) + "</span>" +
+        "<br>ส่งออเดอร์ไปที่อีเมลร้านแล้ว";
+      clearCartAfterSend();
+      nameErr.textContent = "";
+      phoneErr.textContent = "";
+      showView("done");
+    }).catch(function () {
+      sendErr.textContent = "ส่งออเดอร์ไม่สำเร็จ ลองอีกครั้งนะ ตะกร้ายังอยู่";
+    }).then(function () {
+      sending = false;
+      submitBtn.disabled = false;
+      submitBtn.textContent = "ส่งออเดอร์";
+    });
   });
 
   els.doneHome.addEventListener("click", function () {
