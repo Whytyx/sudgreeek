@@ -474,8 +474,25 @@ h2 .hl {
   justify-content: space-between;
   gap: 12px;
   margin: 10px 0 12px;
-  font-weight: 700;
   font-size: 1.15rem;
+}
+/* Sarabun's baht glyph reads as a plain B. Mali is the face already used on topping prices. */
+.money,
+.price,
+.pick-price,
+.build-lines li span:last-child,
+.build-total-row,
+.build-total-row strong,
+#build-total,
+.line-end strong,
+.totals span:last-child,
+.sum-list li span:last-child,
+.sum-row span:last-child,
+.grand strong,
+.size-actions .btn {
+  font-family: "Mali", "Sarabun", "Leelawadee UI", "Tahoma", sans-serif;
+  font-weight: 700;
+  font-synthesis: none;
 }
 .build-receipt .btn { width: 100%; }
 
