@@ -42,7 +42,6 @@
     addCustom: $("#add-custom"),
     buildSummary: $("#build-summary"),
     buildTotal: $("#build-total"),
-    fruitHint: $("#fruit-hint"),
     toast: $("#toast"),
     builder: $("#builder"),
     buildBar: $("#build-bar")
@@ -353,63 +352,30 @@
 
   function readBuilder() {
     var size = $('input[name="size"]:checked');
-    var flavor = $('input[name="flavor"]:checked');
-    var fruits = checked("fruit");
-    var crunch = checked("crunch");
-    var drizzle = $('input[name="drizzle"]:checked');
+    var toppings = checked("topping");
     var parts = [];
     var price = 0;
     if (size) {
       price += Number(size.dataset.price);
       parts.push(size.dataset.label);
     }
-    if (flavor) parts.push(flavor.dataset.label);
-    fruits.forEach(function (f) {
+    toppings.forEach(function (f) {
       price += Number(f.dataset.price);
       parts.push(f.dataset.label);
     });
-    crunch.forEach(function (f) {
-      price += Number(f.dataset.price);
-      parts.push(f.dataset.label);
-    });
-    if (drizzle && drizzle.value !== "none") {
-      price += Number(drizzle.dataset.price);
-      parts.push(drizzle.dataset.label);
-    }
     var id = [
       "custom",
       size ? size.value : "-",
-      flavor ? flavor.value : "-",
-      fruits.map(function (f) { return f.value; }).sort().join("+"),
-      crunch.map(function (f) { return f.value; }).sort().join("+"),
-      drizzle ? drizzle.value : "none"
+      toppings.map(function (f) { return f.value; }).sort().join("+")
     ].join("|");
-    return { size: size, flavor: flavor, parts: parts, price: price, ready: !!(size && flavor), id: id };
-  }
-
-  function enforceFruits() {
-    var boxes = $all('input[name="fruit"]');
-    var n = boxes.filter(function (b) { return b.checked; }).length;
-    boxes.forEach(function (b) {
-      b.disabled = !b.checked && n >= 3;
-    });
-    if (n >= 3) {
-      els.fruitHint.textContent = "เลือกครบ 3 อย่างแล้ว เอาออกก่อนถ้าอยากเปลี่ยน";
-      els.fruitHint.classList.add("warn");
-    } else {
-      els.fruitHint.textContent = "เลือกผลไม้ได้สูงสุด 3 อย่าง";
-      els.fruitHint.classList.remove("warn");
-    }
+    return { size: size, parts: parts, price: price, ready: !!size, id: id };
   }
 
   function renderBuilder() {
-    enforceFruits();
     var b = readBuilder();
     els.buildTotal.textContent = money(b.price);
     els.addCustom.disabled = !b.ready;
-    if (!b.size && !b.flavor) els.buildSummary.textContent = "เลือกขนาดและรสก่อนนะ";
-    else if (!b.size) els.buildSummary.textContent = "เลือกขนาดถ้วยก่อนนะ";
-    else if (!b.flavor) els.buildSummary.textContent = "เลือกรสด้วยนะ · " + b.parts.join(" · ");
+    if (!b.size) els.buildSummary.textContent = "เลือกขนาดก่อนนะ";
     else els.buildSummary.textContent = b.parts.join(" · ");
   }
 

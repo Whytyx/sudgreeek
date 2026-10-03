@@ -352,6 +352,26 @@ h2 .hl {
 .card h3 { margin: 0; font-size: 1.35rem; line-height: 1.15; }
 .card p { margin: 0; min-height: 3em; }
 .card-row { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+.size-actions { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+.size-actions .btn { width: 100%; }
+.card-placeholder {
+  min-height: 220px;
+  aspect-ratio: 1;
+  background: var(--cream);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.ph-emoji { font-size: 4rem; line-height: 1; }
+.ph-label {
+  border: 2px solid var(--ink);
+  background: var(--yellow);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-weight: 700;
+}
 .price { font-size: 1.45rem; font-weight: 700; }
 .empty {
   margin: 12px 0 0;
@@ -389,8 +409,9 @@ h2 .hl {
   flex: 0 0 auto;
 }
 .picks { display: grid; gap: 10px; }
-.picks.size, .picks.flavor { grid-template-columns: repeat(3, 1fr); }
-.picks.fruits, .picks.crunch, .picks.drizzle { grid-template-columns: 1fr 1fr; }
+.picks.size { grid-template-columns: 1fr 1fr; }
+.picks.flavor { grid-template-columns: repeat(3, 1fr); }
+.picks.fruits, .picks.crunch, .picks.drizzle, .picks.toppings { grid-template-columns: 1fr 1fr; }
 .pick { position: relative; display: block; }
 .pick input {
   position: absolute;
@@ -679,6 +700,7 @@ section { scroll-margin-top: 176px; }
   }
   .scroll-hint { display: none; }
   .picks.fruits { grid-template-columns: repeat(3, 1fr); }
+  .picks.toppings { grid-template-columns: repeat(3, 1fr); }
   .picks.crunch { grid-template-columns: repeat(2, 1fr); }
   .picks.drizzle { grid-template-columns: repeat(3, 1fr); }
   .about-grid { grid-template-columns: 1.3fr 0.7fr; }
@@ -686,7 +708,7 @@ section { scroll-margin-top: 176px; }
   .card-row { flex-direction: row; align-items: center; justify-content: space-between; }
 }
 @media (min-width: 980px) {
-  .picks.fruits { grid-template-columns: repeat(5, 1fr); }
+  .picks.fruits, .picks.toppings { grid-template-columns: repeat(5, 1fr); }
   .picks.crunch, .picks.drizzle { grid-template-columns: repeat(4, 1fr); }
 }
 @media (min-width: 1080px) {
@@ -704,3 +726,6 @@ section { scroll-margin-top: 176px; }
     scroll-behavior: auto !important;
   }
 }
+
+.handles { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 6px; }
+.handles a { color: var(--yellow); font-weight: 700; }
