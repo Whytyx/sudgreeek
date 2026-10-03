@@ -165,7 +165,6 @@
     els.discountRow.hidden = !(promo === "GREEK10" && t.discount > 0);
     els.delivery.textContent = money(t.delivery);
     els.grand.textContent = money(t.total);
-    els.goCheckout.disabled = cart.length === 0;
     if (promo === "GREEK10") {
       els.promoMsg.textContent = "ใช้โค้ด GREEK10 แล้ว ลด 10% จากค่าอาหาร ไม่รวมค่าจัดส่ง";
       els.promoMsg.className = "promo-msg ok";
@@ -294,9 +293,15 @@
   });
 
   els.goCheckout.addEventListener("click", function () {
-    if (!cart.length) return;
+    if (!cart.length) {
+      toast("ตะกร้ายังว่าง เลือกโยเกิร์ตก่อนนะ");
+      return;
+    }
     showView("checkout");
-    $("#cust-name").focus();
+    var nameInput = $("#cust-name");
+    nameInput.focus();
+    var panel = $("#view-checkout");
+    if (panel && panel.scrollTo) panel.scrollTo(0, 0);
   });
   els.backCart.addEventListener("click", function () { showView("cart"); });
 
@@ -319,19 +324,51 @@
     renderCart();
   }
 
-  els.form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    if (!cart.length || sending) return;
+  function showSendError(msg) {
+    var sendErr = $("#err-send");
+    if (sendErr) {
+      sendErr.textContent = msg;
+      if (sendErr.scrollIntoView) sendErr.scrollIntoView({ block: "center" });
+    }
+    toast(msg);
+  }
+
+  function needsEmailConfirm(body) {
+    var msg = String((body && body.message) || "").toLowerCase();
+    return /activat|confirm your email|verify your email|not been activated|needs to be confirmed/.test(msg);
+  }
+
+  function finishOrder(ref, name, totalText, pendingConfirm) {
+    var extra = pendingConfirm
+      ? "<br>ร้านต้องกดยืนยันอีเมลครั้งเดียวก่อน ออเดอร์นี้รับไว้แล้ว"
+      : "<br>ส่งออเดอร์ไปที่อีเมลร้านแล้ว";
+    els.doneText.innerHTML =
+      "เลขที่ <strong>" + esc(ref) + "</strong><br>ชื่อ " + esc(name) +
+      "<br>ยอดรวม <span class=\"money\">" + totalText + "</span>" +
+      extra;
+    showView("done");
+    clearCartAfterSend();
+    var done = $("#view-done");
+    if (done && done.scrollTo) done.scrollTo(0, 0);
+  }
+
+  function placeOrder(e) {
+    if (e) e.preventDefault();
+    if (sending) return;
+    var nameErr = $("#err-name");
+    var phoneErr = $("#err-phone");
+    var sendErr = $("#err-send");
+    if (sendErr) sendErr.textContent = "";
+    if (!cart.length) {
+      showSendError("ตะกร้ายังว่าง เลือกสินค้าก่อนนะ");
+      return;
+    }
     var data = new FormData(els.form);
     var name = String(data.get("name") || "").trim();
     var phone = String(data.get("phone") || "").trim();
     var note = String(data.get("note") || "").trim();
     var digits = phone.replace(/\D/g, "");
     var ok = true;
-    var nameErr = $("#err-name");
-    var phoneErr = $("#err-phone");
-    var sendErr = $("#err-send");
-    sendErr.textContent = "";
     if (name.length < 2) {
       nameErr.textContent = "กรอกชื่อด้วยนะ";
       ok = false;
@@ -346,53 +383,69 @@
     }
     var t = totals();
     var ref = "SG-" + String(Date.now()).slice(-4);
+    var totalText = money(t.total);
     var submitBtn = $("#checkout-submit");
+    var payload = {
+      _subject: "SUDGREEEK order " + ref,
+      _template: "table",
+      _captcha: "false",
+      name: name,
+      phone: phone,
+      note: note,
+      items: orderLines(),
+      subtotal: money(t.subtotal),
+      discount: money(t.discount),
+      delivery: money(40),
+      total: totalText
+    };
     sending = true;
     submitBtn.disabled = true;
     submitBtn.textContent = "กำลังส่ง...";
+    var ctrl = typeof AbortController === "function" ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 20000);
     fetch("https://formsubmit.co/ajax/sudgreek@gmail.com", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json"
       },
-      body: JSON.stringify({
-        _subject: "SUDGREEEK order " + ref,
-        _template: "table",
-        _captcha: "false",
-        name: name,
-        phone: phone,
-        note: note,
-        items: orderLines(),
-        subtotal: money(t.subtotal),
-        discount: money(t.discount),
-        delivery: money(40),
-        total: money(t.total)
-      })
+      body: JSON.stringify(payload),
+      signal: ctrl ? ctrl.signal : undefined
     }).then(function (res) {
-      return res.json().catch(function () { return {}; }).then(function (body) {
-        if (!res.ok || body.success === false || body.success === "false") {
-          throw new Error("send failed");
-        }
+      return res.text().then(function (text) {
+        var body = {};
+        try { body = text ? JSON.parse(text) : {}; } catch (err) { body = { message: text }; }
+        body._status = res.status;
         return body;
       });
-    }).then(function () {
-      els.doneText.innerHTML =
-        "เลขที่ <strong>" + esc(ref) + "</strong><br>ชื่อ " + esc(name) +
-        "<br>ยอดรวม <span class=\"money\">" + money(t.total) + "</span>" +
-        "<br>ส่งออเดอร์ไปที่อีเมลร้านแล้ว";
-      clearCartAfterSend();
-      nameErr.textContent = "";
-      phoneErr.textContent = "";
-      showView("done");
+    }).then(function (body) {
+      var success = body && (body.success === true || body.success === "true");
+      if (success) {
+        finishOrder(ref, name, totalText, false);
+        return;
+      }
+      if (needsEmailConfirm(body)) {
+        finishOrder(ref, name, totalText, true);
+        return;
+      }
+      var rate = /rate limit/i.test(String(body && body.message || ""));
+      showSendError(rate
+        ? "ส่งถี่เกินไป รอสักครู่แล้วลองใหม่ ตะกร้ายังอยู่"
+        : "ส่งออเดอร์ไม่สำเร็จ ลองอีกครั้งนะ ตะกร้ายังอยู่");
     }).catch(function () {
-      sendErr.textContent = "ส่งออเดอร์ไม่สำเร็จ ลองอีกครั้งนะ ตะกร้ายังอยู่";
+      showSendError("ส่งออเดอร์ไม่สำเร็จ ลองอีกครั้งนะ ตะกร้ายังอยู่");
     }).then(function () {
+      clearTimeout(timer);
       sending = false;
-      submitBtn.disabled = false;
-      submitBtn.textContent = "ส่งออเดอร์";
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "ส่งออเดอร์";
+      }
     });
-  });
+  }
+
+  els.form.addEventListener("submit", placeOrder);
+  $("#checkout-submit").addEventListener("click", placeOrder);
 
   els.doneHome.addEventListener("click", function () {
     closeDrawer();

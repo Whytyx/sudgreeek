@@ -736,3 +736,14 @@ section { scroll-margin-top: 176px; }
 
 .handles { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 6px; }
 .handles a { color: var(--yellow); font-weight: 700; }
+
+#err-send:not(:empty) {
+  display: block;
+  margin: 8px 0;
+  background: var(--yellow);
+  color: var(--ink);
+  border: 2.5px solid var(--ink);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-weight: 700;
+}
