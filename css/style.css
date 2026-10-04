@@ -371,6 +371,14 @@ h2 .hl {
   background: var(--cream);
 }
 
+.photo-note {
+  margin: 0 2px 4px;
+  max-width: 36em;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: rgba(17, 17, 17, 0.48);
+}
+
 /* Builder */
 #builder {
   background: #e8f3fc;
