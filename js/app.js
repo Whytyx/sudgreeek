@@ -304,6 +304,7 @@
       return;
     }
     showView("checkout");
+    ensureOrderRef();
     var nameInput = $("#cust-name");
     nameInput.focus();
     var panel = $("#view-checkout");
@@ -312,6 +313,21 @@
   els.backCart.addEventListener("click", function () { showView("cart"); });
 
   var sending = false;
+  var orderRef = "";
+
+  function ensureOrderRef() {
+    if (!orderRef) {
+      try { orderRef = sessionStorage.getItem("sudgreeek-order-ref") || ""; } catch (e) {}
+    }
+    if (!orderRef || !/^SG-\d+$/.test(orderRef)) {
+      orderRef = "SG-" + String(Date.now()).slice(-4);
+      try { sessionStorage.setItem("sudgreeek-order-ref", orderRef); } catch (e) {}
+    }
+    var code = $("#order-code");
+    if (code) code.textContent = orderRef;
+    return orderRef;
+  }
+
 
   function orderLines() {
     return cart.map(function (i) {
@@ -391,7 +407,7 @@
     }
     if (slipErr) slipErr.textContent = "";
     var t = totals();
-    var ref = "SG-" + String(Date.now()).slice(-4);
+    var ref = ensureOrderRef();
     var totalText = money(t.total);
     var next = location.origin + location.pathname + "?order=" + encodeURIComponent(ref);
     try {
@@ -417,6 +433,8 @@
     var submitBtn = $("#checkout-submit");
     submitBtn.disabled = true;
     submitBtn.textContent = "กำลังส่ง...";
+    orderRef = "";
+    try { sessionStorage.removeItem("sudgreeek-order-ref"); } catch (e) {}
     els.form.action = "https://formsubmit.co/sudgreek@gmail.com";
     els.form.method = "post";
     els.form.enctype = "multipart/form-data";
@@ -451,6 +469,20 @@
   }
 
   els.form.addEventListener("submit", placeOrder);
+  var lineSlip = $("#line-slip");
+  if (lineSlip) lineSlip.addEventListener("click", function () {
+    var ref = ensureOrderRef();
+    var t = totals();
+    var name = ($("#cust-name").value || "").trim();
+    var phone = ($("#cust-phone").value || "").trim();
+    var parts = ["รหัสออเดอร์ " + ref, "ยอด " + money(t.total)];
+    if (name) parts.push("ชื่อ " + name);
+    if (phone) parts.push("เบอร์ " + phone);
+    if (cart.length) parts.push(orderLines());
+    parts.push("ส่งสลิปการโอนในแชทนี้");
+    var url = "https://line.me/R/oaMessage/@816tejgh/?" + encodeURIComponent(parts.join("\n"));
+    window.location.href = url;
+  });
   var slipInput = $("#slip");
   if (slipInput) slipInput.addEventListener("change", syncSlip);
 
