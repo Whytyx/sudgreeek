@@ -505,16 +505,43 @@ h2 .hl {
   font-size: 1.6rem;
   margin: 8px 0;
 }
-.about-photo { margin: 22px auto 10px; }
-.about-photo img {
-  width: 100%;
+.shop-slides {
+  position: relative;
+  margin: 22px auto 10px;
+  max-width: 560px;
+  aspect-ratio: 1;
   border: 4px solid var(--ink);
   border-radius: 28px;
   box-shadow: 7px 7px 0 var(--ink);
-  object-fit: cover;
-  max-height: 520px;
+  overflow: hidden;
+  background: #fff;
 }
-.about-photo figcaption { margin-top: 8px; font-size: 0.95rem; }
+.shop-slides img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity .45s ease;
+}
+.shop-slides img.on { opacity: 1; }
+.slide-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+  background: var(--yellow);
+  font-size: 1.4rem;
+  line-height: 1;
+  z-index: 2;
+}
+.slide-btn.prev { left: 10px; }
+.slide-btn.next { right: 10px; }
 
 /* Footer */
 .site-footer {

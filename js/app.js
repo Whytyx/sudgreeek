@@ -575,6 +575,28 @@
     openDrawer("done");
   }
 
+  (function slides() {
+    var box = document.querySelector(".shop-slides");
+    if (!box) return;
+    var pics = Array.prototype.slice.call(box.querySelectorAll("img"));
+    if (pics.length < 2) return;
+    var i = 0;
+    var timer = 0;
+    function show(n) {
+      i = (n + pics.length) % pics.length;
+      pics.forEach(function (img, idx) { img.classList.toggle("on", idx === i); });
+    }
+    function arm() {
+      clearInterval(timer);
+      timer = setInterval(function () { show(i + 1); }, 3500);
+    }
+    var prev = document.getElementById("slide-prev");
+    var next = document.getElementById("slide-next");
+    if (prev) prev.addEventListener("click", function () { show(i - 1); arm(); });
+    if (next) next.addEventListener("click", function () { show(i + 1); arm(); });
+    arm();
+  })();
+
   load();
   if (promo) els.promoInput.value = promo;
   renderCart();
