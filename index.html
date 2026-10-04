@@ -162,7 +162,7 @@
               </div>
             </div>
           </article>
-          <article class="card" data-q="banana กล้วย 89">
+          <article class="card" data-q="banana กล้วย 79">
             <div class="card-photo card-placeholder" role="img" aria-label="Banana ยังไม่มีรูป รูปกำลังมา">
               <span class="ph-emoji" aria-hidden="true">🍌</span>
               <span class="ph-label">รูปกำลังมา</span>
@@ -171,8 +171,8 @@
               <h3>Banana</h3>
               <p>กรีก + กล้วย</p>
               <div class="card-row">
-                <strong class="price">฿89</strong>
-                <button type="button" class="btn js-add" data-id="banana" data-name="Banana" data-detail="กรีก + กล้วย" data-price="89">+เพิ่มลงตะกร้า</button>
+                <strong class="price">฿79</strong>
+                <button type="button" class="btn js-add" data-id="banana" data-name="Banana" data-detail="กรีก + กล้วย" data-price="79">+เพิ่มลงตะกร้า</button>
               </div>
             </div>
           </article>
@@ -185,38 +185,51 @@
       <div class="wrap">
         <p class="eyebrow">จัดเซ็ตเอง</p>
         <h2>จัดเซ็ตโยเกิร์ต <span class="hl">ในแบบของคุณ</span></h2>
-        <p class="builder-lead">เลือก Plain 80g หรือ 120g แล้วเติมท็อปปิ้งได้ตามใจ กี่อย่างก็ได้ ราคาอัปเดตทันที</p>
+        <p class="builder-lead">เลือกขนาด แล้วเลือกเนื้อกรีก Plain หรือ Biscoff จากนั้นเติมท็อปปิ้งได้ตามใจ กี่อย่างก็ได้</p>
 
-        <h3 class="step"><i>1</i> เลือกขนาด</h3>
+        <h3 class="step"><i>1</i> ขนาด</h3>
         <div class="picks size">
           <label class="pick">
-            <input type="radio" name="size" value="80" data-price="69" data-label="Plain 80g">
-            <span class="pick-body"><span class="pick-name">Plain</span><span class="pick-meta">80g</span><span class="pick-price">฿69</span></span>
+            <input type="radio" name="size" value="80" data-label="80g">
+            <span class="pick-body"><span class="pick-name">80g</span><span class="pick-meta">ราคาตามเนื้อกรีก</span></span>
           </label>
           <label class="pick">
-            <input type="radio" name="size" value="120" data-price="89" data-label="Plain 120g">
-            <span class="pick-body"><span class="pick-name">Plain</span><span class="pick-meta">120g</span><span class="pick-price">฿89</span></span>
+            <input type="radio" name="size" value="120" data-label="120g">
+            <span class="pick-body"><span class="pick-name">120g</span><span class="pick-meta">ราคาตามเนื้อกรีก</span></span>
           </label>
         </div>
 
-        <h3 class="step"><i>2</i> ท็อปปิ้ง</h3>
+        <h3 class="step"><i>2</i> เนื้อกรีก</h3>
+        <div class="picks size">
+          <label class="pick">
+            <input type="radio" name="base" value="plain" data-p80="69" data-p120="89" data-label="Plain">
+            <span class="pick-body"><span class="pick-name">Plain</span><span class="pick-meta">เพลน</span><span class="pick-price">80g ฿69 · 120g ฿89</span></span>
+          </label>
+          <label class="pick">
+            <input type="radio" name="base" value="biscoff" data-p80="89" data-p120="119" data-label="Biscoff">
+            <span class="pick-body"><span class="pick-name">Biscoff</span><span class="pick-meta">บิสกิต</span><span class="pick-price">80g ฿89 · 120g ฿119</span></span>
+          </label>
+        </div>
+        <p class="subnote">เลือกอย่างใดอย่างหนึ่ง ราคาเปลี่ยนตามขนาด</p>
+
+        <h3 class="step"><i>3</i> ท็อปปิ้ง</h3>
         <div class="picks toppings">
-          <label class="pick"><input type="checkbox" name="topping" value="strawberry" data-price="25" data-label="Strawberry"><span class="pick-body"><span class="fruit-ico" aria-hidden="true">🍓</span><span class="pick-name">Strawberry</span><span class="pick-meta">สตรอว์เบอร์รี่</span><span class="pick-price">+฿25</span></span></label>
+          <label class="pick"><input type="checkbox" name="topping" value="strawberry" data-price="30" data-label="Strawberry"><span class="pick-body"><span class="fruit-ico" aria-hidden="true">🍓</span><span class="pick-name">Strawberry</span><span class="pick-meta">สตรอว์เบอร์รี่</span><span class="pick-price">+฿30</span></span></label>
           <label class="pick"><input type="checkbox" name="topping" value="blueberry" data-price="20" data-label="Blueberry"><span class="pick-body"><span class="fruit-ico" aria-hidden="true">🫐</span><span class="pick-name">Blueberry</span><span class="pick-meta">บลูเบอร์รี่</span><span class="pick-price">+฿20</span></span></label>
-          <label class="pick"><input type="checkbox" name="topping" value="banana" data-price="15" data-label="Banana"><span class="pick-body"><span class="fruit-ico" aria-hidden="true">🍌</span><span class="pick-name">Banana</span><span class="pick-meta">กล้วย</span><span class="pick-price">+฿15</span></span></label>
+          <label class="pick"><input type="checkbox" name="topping" value="banana" data-price="10" data-label="Banana"><span class="pick-body"><span class="fruit-ico" aria-hidden="true">🍌</span><span class="pick-name">Banana</span><span class="pick-meta">กล้วย</span><span class="pick-price">+฿10</span></span></label>
           <label class="pick"><input type="checkbox" name="topping" value="shinemuscat" data-price="20" data-label="Shine Muscat"><span class="pick-body"><span class="fruit-ico" aria-hidden="true">🍇</span><span class="pick-name">Shine Muscat</span><span class="pick-meta">ไชน์มัสคัต</span><span class="pick-price">+฿20</span></span></label>
           <label class="pick"><input type="checkbox" name="topping" value="kiwi" data-price="20" data-label="Kiwi"><span class="pick-body"><span class="fruit-ico" aria-hidden="true">🥝</span><span class="pick-name">Kiwi</span><span class="pick-meta">กีวี่</span><span class="pick-price">+฿20</span></span></label>
-          <label class="pick"><input type="checkbox" name="topping" value="honey" data-price="15" data-label="Honey"><span class="pick-body"><span class="fruit-ico" aria-hidden="true">🍯</span><span class="pick-name">Honey</span><span class="pick-meta">น้ำผึ้ง</span><span class="pick-price">+฿15</span></span></label>
+          <label class="pick"><input type="checkbox" name="topping" value="honey" data-price="10" data-label="Honey"><span class="pick-body"><span class="fruit-ico" aria-hidden="true">🍯</span><span class="pick-name">Honey</span><span class="pick-meta">น้ำผึ้ง</span><span class="pick-price">+฿10</span></span></label>
           <label class="pick"><input type="checkbox" name="topping" value="oreo" data-price="10" data-label="Oreo"><span class="pick-body"><span class="fruit-ico" aria-hidden="true">🍪</span><span class="pick-name">Oreo</span><span class="pick-meta">โอรีโอ</span><span class="pick-price">+฿10</span></span></label>
           <label class="pick"><input type="checkbox" name="topping" value="cornflakes" data-price="10" data-label="Cornflakes"><span class="pick-body"><span class="fruit-ico" aria-hidden="true">🥣</span><span class="pick-name">Cornflakes</span><span class="pick-meta">คอร์นเฟลก</span><span class="pick-price">+฿10</span></span></label>
           <label class="pick"><input type="checkbox" name="topping" value="mixnuts" data-price="20" data-label="Mix Nuts"><span class="pick-body"><span class="fruit-ico" aria-hidden="true">🥜</span><span class="pick-name">Mix Nuts</span><span class="pick-meta">มิกซ์นัท</span><span class="pick-price">+฿20</span></span></label>
-          <label class="pick"><input type="checkbox" name="topping" value="biscoff" data-price="15" data-label="Biscoff"><span class="pick-body"><span class="fruit-ico" aria-hidden="true">🍪</span><span class="pick-name">Biscoff</span><span class="pick-meta">บิสกิต</span><span class="pick-price">+฿15</span></span></label>
+          <label class="pick"><input type="checkbox" name="topping" value="biscoff" data-price="20" data-label="Biscoff"><span class="pick-body"><span class="fruit-ico" aria-hidden="true">🍪</span><span class="pick-name">Biscoff</span><span class="pick-meta">บิสกิต</span><span class="pick-price">+฿20</span></span></label>
         </div>
         <p class="subnote">เลือกได้หลายอย่าง หรือไม่เลือกก็ได้</p>
 
         <div class="build-receipt" id="build-receipt">
           <h3>ชุดที่กำลังจัด</h3>
-          <p class="build-empty" id="build-empty">เลือกขนาดกะปุกก่อน</p>
+          <p class="build-empty" id="build-empty">เลือกขนาดและเนื้อกรีกก่อน</p>
           <ul class="build-lines" id="build-lines"></ul>
           <div class="build-total-row" id="build-total-row" hidden>
             <span>รวม</span>
@@ -251,7 +264,7 @@
       <div>
         <p class="foot-brand">SUDGREEEK</p>
         <p class="slogan-inline" style="margin-top:0">So Greek So Good</p>
-        <p>ยังไม่มีการเรียกเก็บเงิน ออเดอร์ส่งถึงร้านทางอีเมล</p>
+        <p>ชำระผ่าน PromptPay แล้วอัปโหลดสลิป ออเดอร์ส่งถึงร้านทางอีเมล</p>
         <ul class="handles">
           <li><a href="https://www.instagram.com/sudgreek_/" rel="noopener noreferrer">Instagram sudgreek_</a></li>
           <li><a href="https://www.tiktok.com/@sudgreeeek" rel="noopener noreferrer">TikTok sudgreeeek</a></li>
@@ -293,17 +306,17 @@
         <div class="totals">
           <div><span>รวมอาหาร</span><span id="subtotal">฿0</span></div>
           <div id="discount-row" hidden><span>ส่วนลด GREEK10</span><span id="discount">−฿0</span></div>
-          <div><span>ค่าจัดส่งตัวอย่าง</span><span id="delivery">฿0</span></div>
+          <div><span>ค่าจัดส่ง</span><span id="delivery">฿0</span></div>
           <div class="grand"><span>ยอดสุทธิ</span><strong id="grand">฿0</strong></div>
         </div>
-        <p class="fine">โค้ด GREEK10 ลด 10% จากค่าอาหาร ไม่รวมค่าจัดส่ง ค่าจัดส่งตัวอย่าง ฿40 เมื่อมีสินค้า</p>
+        <p class="fine">โค้ด GREEK10 ลด 10% จากค่าอาหาร ไม่รวมค่าจัดส่ง ค่าจัดส่ง ฿40 เมื่อมีสินค้า</p>
         <button type="button" class="btn btn-block" id="go-checkout">ไปเช็กเอาต์</button>
       </div>
     </div>
 
     <div class="drawer-view" id="view-checkout" hidden>
       <button type="button" class="text-btn" id="back-cart">← กลับไปตะกร้า</button>
-      <form id="checkout-form" novalidate>
+      <form id="checkout-form" enctype="multipart/form-data" novalidate>
         <label class="field">ชื่อ
           <input id="cust-name" name="name" autocomplete="name" required maxlength="80">
           <span class="err" id="err-name"></span>
@@ -316,9 +329,17 @@
           <textarea name="note" maxlength="300" placeholder="เช่น ขอช้อนเพิ่ม"></textarea>
         </label>
         <div id="checkout-summary"></div>
+        <div class="pay-box">
+          <p class="pay-lead">โอนยอดด้านล่าง แล้วอัปโหลดสลิป</p>
+          <img class="promptpay" src="img/promptpay.jpg" width="720" height="960" alt="คิวอาร์โค้ดพร้อมเพย์ของร้าน">
+          <p class="pay-total">ยอดที่ต้องโอน <strong id="pay-total" class="money">฿0</strong></p>
+          <label class="field">สลิปการโอน
+            <input id="slip" name="attachment" type="file" accept="image/*">
+          </label>
+          <span class="err" id="err-slip"></span>
+        </div>
         <p class="err" id="err-send"></p>
-        <p class="fine">ยังไม่มีการเรียกเก็บเงิน ส่งรายการให้ร้านทางอีเมล</p>
-        <button type="button" class="btn btn-ink btn-block" id="checkout-submit">ส่งออเดอร์</button>
+        <button type="button" class="btn btn-block" id="checkout-submit" disabled>ยืนยันออเดอร์</button>
       </form>
     </div>
 

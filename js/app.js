@@ -134,8 +134,10 @@
       '<ul class="sum-list">' + rows + "</ul>" +
       '<div class="sum-row"><span>รวมอาหาร</span><span>' + money(t.subtotal) + "</span></div>" +
       discountRow +
-      '<div class="sum-row"><span>ค่าจัดส่งตัวอย่าง</span><span>' + money(t.delivery) + "</span></div>" +
+      '<div class="sum-row"><span>ค่าจัดส่ง</span><span>' + money(t.delivery) + "</span></div>" +
       '<div class="sum-row grand"><span>ยอดสุทธิ</span><span>' + money(t.total) + "</span></div>";
+    var payTotal = $("#pay-total");
+    if (payTotal) payTotal.textContent = money(t.total);
   }
 
   function renderCart() {
@@ -326,6 +328,7 @@
     els.form.reset();
     save();
     renderCart();
+    syncSlip();
   }
 
   function showSendError(msg) {
@@ -385,23 +388,45 @@
       (name.length < 2 ? $("#cust-name") : $("#cust-phone")).focus();
       return;
     }
+    var slipErr = $("#err-slip");
+    var slip = selectedSlip();
+    if (!slip) {
+      if (slipErr) slipErr.textContent = "อัปโหลดรูปสลิปก่อนยืนยันนะ";
+      var slipInput = $("#slip");
+      if (slipInput) slipInput.focus();
+      syncSlip();
+      return;
+    }
+    if (slipErr) slipErr.textContent = "";
     var t = totals();
     var ref = "SG-" + String(Date.now()).slice(-4);
     var totalText = money(t.total);
     var submitBtn = $("#checkout-submit");
-    var payload = {
-      _subject: "SUDGREEEK order " + ref,
-      _template: "table",
-      _captcha: "false",
-      name: name,
-      phone: phone,
-      note: note,
-      items: orderLines(),
-      subtotal: money(t.subtotal),
-      discount: money(t.discount),
-      delivery: money(40),
-      total: totalText
-    };
+    var payload = new FormData();
+    payload.append("_subject", "SUDGREEEK order " + ref);
+    payload.append("_template", "table");
+    payload.append("_captcha", "false");
+    payload.append("name", name);
+    payload.append("phone", phone);
+    payload.append("note", note);
+    payload.append("items", orderLines());
+    payload.append("subtotal", money(t.subtotal));
+    payload.append("discount", money(t.discount));
+    payload.append("delivery", money(40));
+    payload.append("total", totalText);
+    payload.append("slip_filename", slip.name);
+    var slipAttached = false;
+    try {
+      payload.append("attachment", slip, slip.name);
+      var stored = typeof payload.get === "function" ? payload.get("attachment") : slip;
+      slipAttached = !!(stored && stored.size === slip.size && stored.name === slip.name);
+    } catch (err) {
+      slipAttached = false;
+    }
+    if (!slipAttached) {
+      showSendError("แนบสลิปไม่สำเร็จ ลองเลือกรูปใหม่ ตะกร้ายังอยู่");
+      return;
+    }
     sending = true;
     submitBtn.disabled = true;
     submitBtn.textContent = "กำลังส่ง...";
@@ -409,11 +434,8 @@
     var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 20000);
     fetch("https://formsubmit.co/ajax/sudgreek@gmail.com", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json"
-      },
-      body: JSON.stringify(payload),
+      headers: { Accept: "application/json" },
+      body: payload,
       signal: ctrl ? ctrl.signal : undefined
     }).then(function (res) {
       return res.text().then(function (text) {
@@ -441,15 +463,42 @@
     }).then(function () {
       clearTimeout(timer);
       sending = false;
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "ส่งออเดอร์";
-      }
+      if (submitBtn) submitBtn.textContent = "ยืนยันออเดอร์";
+      syncSlip();
     });
+  }
+
+
+  function selectedSlip() {
+    var input = $("#slip");
+    if (!input || !input.files || !input.files[0]) return null;
+    var file = input.files[0];
+    if (file.size > 9 * 1024 * 1024) return null;
+    if (file.type && file.type.indexOf("image/") !== 0) return null;
+    if (!file.type && !/\.(jpe?g|png|gif|webp|heic|heif|bmp)$/i.test(file.name)) return null;
+    return file;
+  }
+
+  function syncSlip() {
+    var btn = $("#checkout-submit");
+    var input = $("#slip");
+    var err = $("#err-slip");
+    var raw = input && input.files && input.files[0];
+    var file = selectedSlip();
+    if (err && raw && !file) {
+      err.textContent = raw.size > 9 * 1024 * 1024
+        ? "ไฟล์ใหญ่เกิน 9MB เลือกรูปที่เล็กลง"
+        : "ใช้ไฟล์รูปภาพเท่านั้น";
+    } else if (err && !sending) {
+      err.textContent = "";
+    }
+    if (btn && !sending) btn.disabled = !file;
   }
 
   els.form.addEventListener("submit", placeOrder);
   $("#checkout-submit").addEventListener("click", placeOrder);
+  var slipInput = $("#slip");
+  if (slipInput) slipInput.addEventListener("change", syncSlip);
 
   els.doneHome.addEventListener("click", function () {
     closeDrawer();
@@ -460,15 +509,24 @@
     return $all('input[name="' + name + '"]:checked');
   }
 
+  function basePriceFor(base, size) {
+    if (!base || !size) return 0;
+    return Number(size.value === "120" ? base.dataset.p120 : base.dataset.p80);
+  }
+
   function readBuilder() {
     var size = $('input[name="size"]:checked');
+    var base = $('input[name="base"]:checked');
     var toppings = checked("topping");
     var lines = [];
     var price = 0;
-    if (size) {
-      var basePrice = Number(size.dataset.price);
+    if (size) lines.push({ label: "ขนาด " + size.dataset.label, price: null, extra: false });
+    if (base && size) {
+      var basePrice = basePriceFor(base, size);
       price += basePrice;
-      lines.push({ label: size.dataset.label, price: basePrice, extra: false });
+      lines.push({ label: base.dataset.label + " " + size.dataset.label, price: basePrice, extra: false });
+    } else if (base) {
+      lines.push({ label: base.dataset.label, price: null, extra: false });
     }
     toppings.forEach(function (f) {
       var extra = Number(f.dataset.price);
@@ -478,22 +536,35 @@
     var id = [
       "custom",
       size ? size.value : "-",
+      base ? base.value : "-",
       toppings.map(function (f) { return f.value; }).sort().join("+")
     ].join("|");
-    return { size: size, lines: lines, price: price, ready: !!size, id: id };
+    return { size: size, base: base, lines: lines, price: price, ready: !!(size && base), id: id };
   }
 
   function renderBuilder() {
+    var size = $('input[name="size"]:checked');
+    $all('input[name="base"]').forEach(function (input) {
+      var priceEl = input.parentNode.querySelector(".pick-price");
+      if (!priceEl) return;
+      if (!size) {
+        priceEl.textContent = "80g " + money(input.dataset.p80) + " · 120g " + money(input.dataset.p120);
+      } else {
+        priceEl.textContent = money(basePriceFor(input, size));
+      }
+    });
     var b = readBuilder();
     els.addCustom.disabled = !b.ready;
-    els.buildEmpty.hidden = b.lines.length > 0 && !!b.size;
-    if (!b.size) els.buildEmpty.textContent = "เลือกขนาดกะปุกก่อน";
+    els.buildEmpty.hidden = b.ready;
+    if (!b.size && !b.base) els.buildEmpty.textContent = "เลือกขนาดและเนื้อกรีกก่อน";
+    else if (!b.size) els.buildEmpty.textContent = "เลือกขนาดก่อน";
+    else if (!b.base) els.buildEmpty.textContent = "เลือกเนื้อกรีกก่อน";
     els.buildLines.innerHTML = b.lines.map(function (line) {
-      var shown = (line.extra ? "+" : "") + money(line.price);
+      var shown = line.price == null ? "" : (line.extra ? "+" : "") + money(line.price);
       return "<li><span>" + esc(line.label) + "</span><span>" + shown + "</span></li>";
     }).join("");
-    els.buildTotalRow.hidden = !b.size;
-    if (b.size) els.buildTotal.textContent = money(b.price);
+    els.buildTotalRow.hidden = !b.ready;
+    if (b.ready) els.buildTotal.textContent = money(b.price);
   }
 
   els.builder.addEventListener("change", renderBuilder);
@@ -504,10 +575,10 @@
     var detailParts = b.lines.filter(function (line) { return line.extra; }).map(function (line) { return line.label; });
     addItem({
       id: b.id,
-      name: "จัดเซ็ตเอง · " + b.size.dataset.label,
+      name: "จัดเซ็ตเอง · " + b.base.dataset.label + " " + b.size.dataset.label,
       detail: detailParts.join(" · "),
       price: b.price,
-      img: ""
+      img: b.base.value === "biscoff" ? "img/biscoff.jpg" : "img/plain.jpg"
     });
   });
 
