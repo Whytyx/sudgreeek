@@ -774,7 +774,6 @@ section { scroll-margin-top: 176px; }
   border-radius: 18px;
 }
 .pay-total { margin: 0 0 8px; text-align: center; font-weight: 700; }
-#slip { font-size: 16px; }
 
 .order-code { margin: 0 0 8px; text-align: center; font-weight: 700; }
 .line-btn {

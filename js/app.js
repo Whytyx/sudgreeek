@@ -344,7 +344,6 @@
     els.form.reset();
     save();
     renderCart();
-    syncSlip();
   }
 
   function showSendError(msg) {
@@ -360,7 +359,7 @@
     els.doneText.innerHTML =
       "เลขที่ <strong>" + esc(ref) + "</strong><br>ชื่อ " + esc(name) +
       "<br>ยอดรวม <span class=\"money\">" + totalText + "</span>" +
-      "<br>ส่งออเดอร์ไปที่อีเมลร้านแล้ว";
+      "<br>ส่งออเดอร์ไปที่อีเมลร้านแล้ว<br>สลิปยืนยันในแชท LINE";
     showView("done");
     clearCartAfterSend();
     var done = $("#view-done");
@@ -396,16 +395,6 @@
       (name.length < 2 ? $("#cust-name") : $("#cust-phone")).focus();
       return;
     }
-    var slipErr = $("#err-slip");
-    var slip = selectedSlip();
-    if (!slip) {
-      if (slipErr) slipErr.textContent = "อัปโหลดรูปสลิปก่อนยืนยันนะ";
-      var slipInput = $("#slip");
-      if (slipInput) slipInput.focus();
-      syncSlip();
-      return;
-    }
-    if (slipErr) slipErr.textContent = "";
     var t = totals();
     var ref = ensureOrderRef();
     var totalText = money(t.total);
@@ -437,35 +426,7 @@
     try { sessionStorage.removeItem("sudgreeek-order-ref"); } catch (e) {}
     els.form.action = "https://formsubmit.co/sudgreek@gmail.com";
     els.form.method = "post";
-    els.form.enctype = "multipart/form-data";
-    els.form.encoding = "multipart/form-data";
     els.form.submit();
-  }
-
-  function selectedSlip() {
-    var input = $("#slip");
-    if (!input || !input.files || !input.files[0]) return null;
-    var file = input.files[0];
-    if (file.size > 9 * 1024 * 1024) return null;
-    if (file.type && file.type.indexOf("image/") !== 0) return null;
-    if (!file.type && !/\.(jpe?g|png|gif|webp|heic|heif|bmp)$/i.test(file.name)) return null;
-    return file;
-  }
-
-  function syncSlip() {
-    var btn = $("#checkout-submit");
-    var input = $("#slip");
-    var err = $("#err-slip");
-    var raw = input && input.files && input.files[0];
-    var file = selectedSlip();
-    if (err && raw && !file) {
-      err.textContent = raw.size > 9 * 1024 * 1024
-        ? "ไฟล์ใหญ่เกิน 9MB เลือกรูปที่เล็กลง"
-        : "ใช้ไฟล์รูปภาพเท่านั้น";
-    } else if (err && !sending) {
-      err.textContent = "";
-    }
-    if (btn && !sending) btn.disabled = !file;
   }
 
   els.form.addEventListener("submit", placeOrder);
@@ -483,9 +444,6 @@
     var url = "https://line.me/R/oaMessage/@816tejgh/?" + encodeURIComponent(parts.join("\n"));
     window.location.href = url;
   });
-  var slipInput = $("#slip");
-  if (slipInput) slipInput.addEventListener("change", syncSlip);
-
   els.doneHome.addEventListener("click", function () {
     closeDrawer();
     $("#signature").scrollIntoView({ behavior: "smooth" });
