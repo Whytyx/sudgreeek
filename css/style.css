@@ -709,7 +709,7 @@ h2 .hl {
 .sum-list { list-style: none; padding: 0; margin: 0 0 8px; }
 .sum-list li { display: flex; justify-content: space-between; gap: 8px; margin: 4px 0; }
 .done { text-align: center; padding-top: 12px; }
-.done img {
+.done > img {
   width: 140px;
   height: 140px;
   margin: 0 auto 12px;

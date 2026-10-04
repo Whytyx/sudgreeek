@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Mali:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=6">
+  <link rel="stylesheet" href="css/style.css?v=7">
 </head>
 <body>
   <a class="skip" href="#main">ข้ามไปเนื้อหา</a>
@@ -326,14 +326,8 @@
           <textarea name="note" maxlength="300" placeholder="เช่น ขอช้อนเพิ่ม"></textarea>
         </label>
         <div id="checkout-summary"></div>
-        <div class="pay-box">
-          <p class="pay-lead">โอนยอดด้านล่าง แล้วส่งสลิปใน LINE</p>
-          <img class="promptpay" src="img/promptpay.jpg" width="720" height="960" alt="คิวอาร์โค้ดพร้อมเพย์ของร้าน">
-          <p class="pay-total">ยอดที่ต้องโอน <strong id="pay-total" class="money">฿0</strong></p>
-          <p class="order-code">รหัสออเดอร์ <strong id="order-code"></strong></p>
-          <button type="button" class="btn btn-block line-btn" id="line-slip">ส่งสลิปทาง LINE</button>
-          <p class="fine">เปิดแชท SUDGREEK พร้อมรหัสนี้ แล้วแนบรูปสลิปในแชท จากนั้นกลับมากดยืนยันออเดอร์เพื่อส่งเมลให้ร้าน</p>
-          <input type="hidden" name="_subject" id="f-subject" value="">
+        <p class="fine">กดยืนยันออเดอร์ก่อน ร้านจะได้รับเมล แล้วค่อยโอนและส่งสลิป</p>
+        <input type="hidden" name="_subject" id="f-subject" value="">
         <input type="hidden" name="_template" value="table">
         <input type="hidden" name="_captcha" value="false">
         <input type="hidden" name="_next" id="f-next" value="">
@@ -342,7 +336,6 @@
         <input type="hidden" name="discount" id="f-discount" value="">
         <input type="hidden" name="delivery" id="f-delivery" value="">
         <input type="hidden" name="total" id="f-total" value="">
-        </div>
         <p class="err" id="err-send"></p>
         <button type="submit" class="btn btn-block" id="checkout-submit">ยืนยันออเดอร์</button>
       </form>
@@ -352,11 +345,19 @@
       <img src="img/logo.png" width="512" height="512" alt="">
       <h2>รับออเดอร์แล้ว</h2>
       <p id="done-text"></p>
+      <div class="pay-box" id="pay-box">
+        <p class="pay-lead">โอนยอดด้านล่าง แล้วส่งสลิปใน LINE</p>
+        <img class="promptpay" src="img/promptpay.jpg" width="720" height="960" alt="คิวอาร์โค้ดพร้อมเพย์ของร้าน">
+        <p class="pay-total">ยอดที่ต้องโอน <strong id="pay-total" class="money">฿0</strong></p>
+        <p class="order-code">รหัสออเดอร์ <strong id="order-code"></strong></p>
+        <button type="button" class="btn btn-block line-btn" id="line-slip">ส่งสลิปทาง LINE</button>
+        <p class="fine">เปิดแชท SUDGREEK พร้อมรหัสนี้ แล้วแนบรูปสลิปในแชท</p>
+      </div>
       <button type="button" class="btn" id="done-home">กลับไปเลือกเมนู</button>
     </div>
   </aside>
 
   <div class="toast" id="toast" role="status"></div>
-  <script src="js/app.js?v=5"></script>
+  <script src="js/app.js?v=6"></script>
 </body>
 </html>

@@ -136,8 +136,6 @@
       discountRow +
       '<div class="sum-row"><span>ค่าจัดส่ง</span><span>' + money(t.delivery) + "</span></div>" +
       '<div class="sum-row grand"><span>ยอดสุทธิ</span><span>' + money(t.total) + "</span></div>";
-    var payTotal = $("#pay-total");
-    if (payTotal) payTotal.textContent = money(t.total);
   }
 
   function renderCart() {
@@ -314,6 +312,7 @@
 
   var sending = false;
   var orderRef = "";
+  var slipOrder = null;
 
   function ensureOrderRef() {
     if (!orderRef) {
@@ -355,11 +354,24 @@
     toast(msg);
   }
 
-  function finishOrder(ref, name, totalText) {
+  function finishOrder(ref, name, totalText, phone, items) {
+    slipOrder = {
+      ref: ref,
+      name: name || "",
+      phone: phone || "",
+      total: totalText || "",
+      items: items || ""
+    };
     els.doneText.innerHTML =
       "เลขที่ <strong>" + esc(ref) + "</strong><br>ชื่อ " + esc(name) +
       "<br>ยอดรวม <span class=\"money\">" + totalText + "</span>" +
-      "<br>ส่งออเดอร์ไปที่อีเมลร้านแล้ว<br>สลิปยืนยันในแชท LINE";
+      "<br>ส่งออเดอร์ไปที่อีเมลร้านแล้ว<br>โอนตามคิวอาร์ด้านล่าง แล้วส่งสลิปใน LINE";
+    var code = $("#order-code");
+    if (code) code.textContent = ref;
+    var payTotal = $("#pay-total");
+    if (payTotal) payTotal.textContent = totalText || "";
+    var payBox = $("#pay-box");
+    if (payBox) payBox.hidden = false;
     showView("done");
     clearCartAfterSend();
     var done = $("#view-done");
@@ -403,7 +415,9 @@
       sessionStorage.setItem("sudgreeek-pending-order", JSON.stringify({
         ref: ref,
         name: name,
-        total: totalText
+        phone: phone,
+        total: totalText,
+        items: orderLines()
       }));
     } catch (err) {
       showSendError("บันทึกออเดอร์ในเบราว์เซอร์ไม่ได้ ลองใหม่นะ ตะกร้ายังอยู่");
@@ -432,14 +446,11 @@
   els.form.addEventListener("submit", placeOrder);
   var lineSlip = $("#line-slip");
   if (lineSlip) lineSlip.addEventListener("click", function () {
-    var ref = ensureOrderRef();
-    var t = totals();
-    var name = ($("#cust-name").value || "").trim();
-    var phone = ($("#cust-phone").value || "").trim();
-    var parts = ["รหัสออเดอร์ " + ref, "ยอด " + money(t.total)];
-    if (name) parts.push("ชื่อ " + name);
-    if (phone) parts.push("เบอร์ " + phone);
-    if (cart.length) parts.push(orderLines());
+    if (!slipOrder || !slipOrder.ref) return;
+    var parts = ["รหัสออเดอร์ " + slipOrder.ref, "ยอด " + slipOrder.total];
+    if (slipOrder.name) parts.push("ชื่อ " + slipOrder.name);
+    if (slipOrder.phone) parts.push("เบอร์ " + slipOrder.phone);
+    if (slipOrder.items) parts.push(slipOrder.items);
     parts.push("ส่งสลิปการโอนในแชทนี้");
     var url = "https://line.me/R/oaMessage/@816tejgh/?" + encodeURIComponent(parts.join("\n"));
     window.location.href = url;
@@ -571,7 +582,7 @@
     if (!pending || pending.ref !== ref) return;
     try { sessionStorage.removeItem("sudgreeek-pending-order"); } catch (e) {}
     try { history.replaceState(null, "", location.pathname); } catch (e) {}
-    finishOrder(ref, pending.name || "", pending.total || "");
+    finishOrder(ref, pending.name || "", pending.total || "", pending.phone || "", pending.items || "");
     openDrawer("done");
   }
 
