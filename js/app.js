@@ -370,7 +370,23 @@
     if (done && done.scrollTo) done.scrollTo(0, 0);
   }
 
+  function bangkokDate() {
+    try {
+      var formatted = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Bangkok",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).format(new Date());
+      if (/^\d{4}-\d{2}-\d{2}$/.test(formatted)) return formatted;
+    } catch (e) {}
+    var shifted = new Date(Date.now() + 7 * 60 * 60 * 1000);
+    function pad(n) { return (n < 10 ? "0" : "") + n; }
+    return shifted.getUTCFullYear() + "-" + pad(shifted.getUTCMonth() + 1) + "-" + pad(shifted.getUTCDate());
+  }
+
   function placeOrder(e) {
+    var ORDER_SHEET_URL = "";
     if (e) e.preventDefault();
     if (sending) return;
     var nameErr = $("#err-name");
@@ -414,9 +430,13 @@
       showSendError("บันทึกออเดอร์ในเบราว์เซอร์ไม่ได้ ลองใหม่นะ ตะกร้ายังอยู่");
       return;
     }
+    var menu = orderLines();
+    var qty = 0;
+    for (var qi = 0; qi < cart.length; qi++) qty += Number(cart[qi].qty) || 0;
+    if (!qty) qty = 1;
     $("#f-subject").value = "SUDGREEEK order " + ref;
     $("#f-next").value = "";
-    $("#f-items").value = orderLines();
+    $("#f-items").value = menu;
     $("#f-subtotal").value = money(t.subtotal);
     $("#f-discount").value = money(t.discount);
     $("#f-delivery").value = money(t.delivery);
@@ -433,7 +453,23 @@
     els.form.method = "post";
     els.form.target = "checkout-sink";
     els.form.submit();
-    finishOrder(ref, name, totalText, phone, orderLines());
+    if (ORDER_SHEET_URL) {
+      try {
+        fetch(ORDER_SHEET_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({
+            date: bangkokDate(),
+            ref: ref,
+            menu: menu,
+            qty: qty,
+            price: t.total
+          })
+        }).catch(function () {});
+      } catch (sheetErr) {}
+    }
+    finishOrder(ref, name, totalText, phone, menu);
   }
 
   els.form.addEventListener("submit", placeOrder);
