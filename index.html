@@ -316,7 +316,7 @@
 
     <div class="drawer-view" id="view-checkout" hidden>
       <button type="button" class="text-btn" id="back-cart">← กลับไปตะกร้า</button>
-      <form id="checkout-form" enctype="multipart/form-data" novalidate>
+      <form id="checkout-form" method="POST" action="https://formsubmit.co/sudgreek@gmail.com" enctype="multipart/form-data" novalidate>
         <label class="field">ชื่อ
           <input id="cust-name" name="name" autocomplete="name" required maxlength="80">
           <span class="err" id="err-name"></span>
@@ -333,13 +333,22 @@
           <p class="pay-lead">โอนยอดด้านล่าง แล้วอัปโหลดสลิป</p>
           <img class="promptpay" src="img/promptpay.jpg" width="720" height="960" alt="คิวอาร์โค้ดพร้อมเพย์ของร้าน">
           <p class="pay-total">ยอดที่ต้องโอน <strong id="pay-total" class="money">฿0</strong></p>
-          <label class="field">สลิปการโอน
+          <input type="hidden" name="_subject" id="f-subject" value="">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_next" id="f-next" value="">
+        <input type="hidden" name="items" id="f-items" value="">
+        <input type="hidden" name="subtotal" id="f-subtotal" value="">
+        <input type="hidden" name="discount" id="f-discount" value="">
+        <input type="hidden" name="delivery" id="f-delivery" value="">
+        <input type="hidden" name="total" id="f-total" value="">
+        <label class="field">สลิปการโอน
             <input id="slip" name="attachment" type="file" accept="image/*">
           </label>
           <span class="err" id="err-slip"></span>
         </div>
         <p class="err" id="err-send"></p>
-        <button type="button" class="btn btn-block" id="checkout-submit" disabled>ยืนยันออเดอร์</button>
+        <button type="submit" class="btn btn-block" id="checkout-submit" disabled>ยืนยันออเดอร์</button>
       </form>
     </div>
 

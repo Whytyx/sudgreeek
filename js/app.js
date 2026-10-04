@@ -340,19 +340,11 @@
     toast(msg);
   }
 
-  function needsEmailConfirm(body) {
-    var msg = String((body && body.message) || "").toLowerCase();
-    return /activat|confirm your email|verify your email|not been activated|needs to be confirmed/.test(msg);
-  }
-
-  function finishOrder(ref, name, totalText, pendingConfirm) {
-    var extra = pendingConfirm
-      ? "<br>ร้านต้องกดยืนยันอีเมลครั้งเดียวก่อน ออเดอร์นี้รับไว้แล้ว"
-      : "<br>ส่งออเดอร์ไปที่อีเมลร้านแล้ว";
+  function finishOrder(ref, name, totalText) {
     els.doneText.innerHTML =
       "เลขที่ <strong>" + esc(ref) + "</strong><br>ชื่อ " + esc(name) +
       "<br>ยอดรวม <span class=\"money\">" + totalText + "</span>" +
-      extra;
+      "<br>ส่งออเดอร์ไปที่อีเมลร้านแล้ว";
     showView("done");
     clearCartAfterSend();
     var done = $("#view-done");
@@ -401,73 +393,36 @@
     var t = totals();
     var ref = "SG-" + String(Date.now()).slice(-4);
     var totalText = money(t.total);
-    var submitBtn = $("#checkout-submit");
-    var payload = new FormData();
-    payload.append("_subject", "SUDGREEEK order " + ref);
-    payload.append("_template", "table");
-    payload.append("_captcha", "false");
-    payload.append("name", name);
-    payload.append("phone", phone);
-    payload.append("note", note);
-    payload.append("items", orderLines());
-    payload.append("subtotal", money(t.subtotal));
-    payload.append("discount", money(t.discount));
-    payload.append("delivery", money(40));
-    payload.append("total", totalText);
-    payload.append("slip_filename", slip.name);
-    var slipAttached = false;
+    var next = location.origin + location.pathname + "?order=" + encodeURIComponent(ref);
     try {
-      payload.append("attachment", slip, slip.name);
-      var stored = typeof payload.get === "function" ? payload.get("attachment") : slip;
-      slipAttached = !!(stored && stored.size === slip.size && stored.name === slip.name);
+      sessionStorage.setItem("sudgreeek-pending-order", JSON.stringify({
+        ref: ref,
+        name: name,
+        total: totalText
+      }));
     } catch (err) {
-      slipAttached = false;
-    }
-    if (!slipAttached) {
-      showSendError("แนบสลิปไม่สำเร็จ ลองเลือกรูปใหม่ ตะกร้ายังอยู่");
+      showSendError("บันทึกออเดอร์ในเบราว์เซอร์ไม่ได้ ลองใหม่นะ ตะกร้ายังอยู่");
       return;
     }
+    $("#f-subject").value = "SUDGREEEK order " + ref;
+    $("#f-next").value = next;
+    $("#f-items").value = orderLines();
+    $("#f-subtotal").value = money(t.subtotal);
+    $("#f-discount").value = money(t.discount);
+    $("#f-delivery").value = money(t.delivery);
+    $("#f-total").value = totalText;
+    $("#cust-name").value = name;
+    $("#cust-phone").value = phone;
     sending = true;
+    var submitBtn = $("#checkout-submit");
     submitBtn.disabled = true;
     submitBtn.textContent = "กำลังส่ง...";
-    var ctrl = typeof AbortController === "function" ? new AbortController() : null;
-    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 20000);
-    fetch("https://formsubmit.co/ajax/sudgreek@gmail.com", {
-      method: "POST",
-      headers: { Accept: "application/json" },
-      body: payload,
-      signal: ctrl ? ctrl.signal : undefined
-    }).then(function (res) {
-      return res.text().then(function (text) {
-        var body = {};
-        try { body = text ? JSON.parse(text) : {}; } catch (err) { body = { message: text }; }
-        body._status = res.status;
-        return body;
-      });
-    }).then(function (body) {
-      var success = body && (body.success === true || body.success === "true");
-      if (success) {
-        finishOrder(ref, name, totalText, false);
-        return;
-      }
-      if (needsEmailConfirm(body)) {
-        finishOrder(ref, name, totalText, true);
-        return;
-      }
-      var rate = /rate limit/i.test(String(body && body.message || ""));
-      showSendError(rate
-        ? "ส่งถี่เกินไป รอสักครู่แล้วลองใหม่ ตะกร้ายังอยู่"
-        : "ส่งออเดอร์ไม่สำเร็จ ลองอีกครั้งนะ ตะกร้ายังอยู่");
-    }).catch(function () {
-      showSendError("ส่งออเดอร์ไม่สำเร็จ ลองอีกครั้งนะ ตะกร้ายังอยู่");
-    }).then(function () {
-      clearTimeout(timer);
-      sending = false;
-      if (submitBtn) submitBtn.textContent = "ยืนยันออเดอร์";
-      syncSlip();
-    });
+    els.form.action = "https://formsubmit.co/sudgreek@gmail.com";
+    els.form.method = "post";
+    els.form.enctype = "multipart/form-data";
+    els.form.encoding = "multipart/form-data";
+    els.form.submit();
   }
-
 
   function selectedSlip() {
     var input = $("#slip");
@@ -496,7 +451,6 @@
   }
 
   els.form.addEventListener("submit", placeOrder);
-  $("#checkout-submit").addEventListener("click", placeOrder);
   var slipInput = $("#slip");
   if (slipInput) slipInput.addEventListener("change", syncSlip);
 
@@ -617,8 +571,23 @@
     }
   });
 
+  function resumeOrder() {
+    var params;
+    try { params = new URLSearchParams(location.search); } catch (e) { return; }
+    var ref = params.get("order");
+    if (!ref || !/^SG-\d+$/.test(ref)) return;
+    var pending = null;
+    try { pending = JSON.parse(sessionStorage.getItem("sudgreeek-pending-order") || "null"); } catch (e) {}
+    if (!pending || pending.ref !== ref) return;
+    try { sessionStorage.removeItem("sudgreeek-pending-order"); } catch (e) {}
+    try { history.replaceState(null, "", location.pathname); } catch (e) {}
+    finishOrder(ref, pending.name || "", pending.total || "");
+    openDrawer("done");
+  }
+
   load();
   if (promo) els.promoInput.value = promo;
   renderCart();
   renderBuilder();
+  resumeOrder();
 })();
