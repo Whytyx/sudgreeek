@@ -709,7 +709,7 @@ h2 .hl {
 .sum-list { list-style: none; padding: 0; margin: 0 0 8px; }
 .sum-list li { display: flex; justify-content: space-between; gap: 8px; margin: 4px 0; }
 .done { text-align: center; padding-top: 12px; }
-.done > img {
+.done > img:not(.promptpay) {
   width: 140px;
   height: 140px;
   margin: 0 auto 12px;
@@ -814,12 +814,13 @@ section { scroll-margin-top: 176px; }
 .pay-lead { margin: 0 0 8px; font-weight: 700; }
 .promptpay {
   display: block;
-  width: min(100%, 320px);
+  width: min(100%, 400px);
   height: auto;
   margin: 0 auto 8px;
   background: #fff;
   border: 3px solid var(--ink);
-  border-radius: 18px;
+  border-radius: 0;
+  object-fit: contain;
 }
 .pay-total { margin: 0 0 8px; text-align: center; font-weight: 700; }
 
