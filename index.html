@@ -313,7 +313,7 @@
 
     <div class="drawer-view" id="view-checkout" hidden>
       <button type="button" class="text-btn" id="back-cart">← กลับไปตะกร้า</button>
-      <form id="checkout-form" method="POST" action="https://formsubmit.co/sudgreek@gmail.com" novalidate>
+      <form id="checkout-form" method="POST" action="https://formsubmit.co/sudgreek@gmail.com" target="checkout-sink" novalidate>
         <label class="field">ชื่อ
           <input id="cust-name" name="name" autocomplete="name" required maxlength="80">
           <span class="err" id="err-name"></span>
@@ -342,22 +342,15 @@
     </div>
 
     <div class="drawer-view done" id="view-done" hidden>
-      <img src="img/logo.png" width="512" height="512" alt="">
-      <h2>รับออเดอร์แล้ว</h2>
-      <p id="done-text"></p>
-      <div class="pay-box" id="pay-box">
-        <p class="pay-lead">โอนยอดด้านล่าง แล้วส่งสลิปใน LINE</p>
-        <img class="promptpay" src="img/promptpay.jpg" width="720" height="960" alt="คิวอาร์โค้ดพร้อมเพย์ของร้าน">
-        <p class="pay-total">ยอดที่ต้องโอน <strong id="pay-total" class="money">฿0</strong></p>
-        <p class="order-code">รหัสออเดอร์ <strong id="order-code"></strong></p>
-        <button type="button" class="btn btn-block line-btn" id="line-slip">ส่งสลิปทาง LINE</button>
-        <p class="fine">เปิดแชท SUDGREEK พร้อมรหัสนี้ แล้วแนบรูปสลิปในแชท</p>
-      </div>
-      <button type="button" class="btn" id="done-home">กลับไปเลือกเมนู</button>
+      <p class="order-code">รหัสสั่งซื้อคือ <strong id="order-code"></strong></p>
+      <p>กรุณาชำระค่าสินค้า</p>
+      <img class="promptpay" src="img/promptpay.jpg" width="720" height="960" alt="คิวอาร์โค้ดพร้อมเพย์ของร้าน">
+      <button type="button" class="btn btn-block line-btn" id="line-slip">ส่งสลิปทาง LINE</button>
     </div>
+    <iframe name="checkout-sink" id="checkout-sink" hidden></iframe>
   </aside>
 
   <div class="toast" id="toast" role="status"></div>
-  <script src="js/app.js?v=6"></script>
+  <script src="js/app.js?v=7"></script>
 </body>
 </html>

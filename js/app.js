@@ -202,7 +202,7 @@
     els.viewCart.hidden = name !== "cart";
     els.viewCheckout.hidden = name !== "checkout";
     els.viewDone.hidden = name !== "done";
-    els.title.textContent = name === "checkout" ? "เช็กเอาต์" : name === "done" ? "รับออเดอร์แล้ว" : "ตะกร้า";
+    els.title.textContent = name === "checkout" ? "เช็กเอาต์" : name === "done" ? "ขอบคุณที่สั่งซื้อสินค้า" : "ตะกร้า";
     if (name === "checkout") renderCheckoutSummary();
   }
 
@@ -362,16 +362,8 @@
       total: totalText || "",
       items: items || ""
     };
-    els.doneText.innerHTML =
-      "เลขที่ <strong>" + esc(ref) + "</strong><br>ชื่อ " + esc(name) +
-      "<br>ยอดรวม <span class=\"money\">" + totalText + "</span>" +
-      "<br>ส่งออเดอร์ไปที่อีเมลร้านแล้ว<br>โอนตามคิวอาร์ด้านล่าง แล้วส่งสลิปใน LINE";
     var code = $("#order-code");
     if (code) code.textContent = ref;
-    var payTotal = $("#pay-total");
-    if (payTotal) payTotal.textContent = totalText || "";
-    var payBox = $("#pay-box");
-    if (payBox) payBox.hidden = false;
     showView("done");
     clearCartAfterSend();
     var done = $("#view-done");
@@ -410,7 +402,6 @@
     var t = totals();
     var ref = ensureOrderRef();
     var totalText = money(t.total);
-    var next = location.origin + location.pathname + "?order=" + encodeURIComponent(ref);
     try {
       sessionStorage.setItem("sudgreeek-pending-order", JSON.stringify({
         ref: ref,
@@ -424,7 +415,7 @@
       return;
     }
     $("#f-subject").value = "SUDGREEEK order " + ref;
-    $("#f-next").value = next;
+    $("#f-next").value = "";
     $("#f-items").value = orderLines();
     $("#f-subtotal").value = money(t.subtotal);
     $("#f-discount").value = money(t.discount);
@@ -440,7 +431,9 @@
     try { sessionStorage.removeItem("sudgreeek-order-ref"); } catch (e) {}
     els.form.action = "https://formsubmit.co/sudgreek@gmail.com";
     els.form.method = "post";
+    els.form.target = "checkout-sink";
     els.form.submit();
+    finishOrder(ref, name, totalText, phone, orderLines());
   }
 
   els.form.addEventListener("submit", placeOrder);
@@ -455,7 +448,7 @@
     var url = "https://line.me/R/oaMessage/@816tejgh/?" + encodeURIComponent(parts.join("\n"));
     window.location.href = url;
   });
-  els.doneHome.addEventListener("click", function () {
+  if (els.doneHome) els.doneHome.addEventListener("click", function () {
     closeDrawer();
     $("#signature").scrollIntoView({ behavior: "smooth" });
   });
