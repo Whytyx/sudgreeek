@@ -165,6 +165,10 @@
     els.discountRow.hidden = !(promo === "GREEK10" && t.discount > 0);
     els.delivery.textContent = money(t.delivery);
     els.grand.textContent = money(t.total);
+    if (els.goCheckout) {
+      els.goCheckout.disabled = cart.length === 0;
+      els.goCheckout.setAttribute("aria-disabled", cart.length ? "false" : "true");
+    }
     if (promo === "GREEK10") {
       els.promoMsg.textContent = "ใช้โค้ด GREEK10 แล้ว ลด 10% จากค่าอาหาร ไม่รวมค่าจัดส่ง";
       els.promoMsg.className = "promo-msg ok";
